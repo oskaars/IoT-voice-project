@@ -27,7 +27,7 @@ async function getSilverCoinPrice() {
 const silverToolDefinition = {
   type: "function",
   function: {
-    name: "getSilverCoinPrice",  // Pasuje do availableTools
+    name: "getSilverCoinPrice",  // tak samo jak w available tools
     description: "Aktualna cena skupu Krugerrand 1oz srebra z Tavex.pl",
     parameters: { type: "object", properties: {} }
   }

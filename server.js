@@ -28,7 +28,7 @@ const messages = [
 ];
 
   const response = await ollama.chat({
-    model: "llama3.2",
+    model: "qwen3-vl:8b",
     messages: messages,
     tools: [silverToolDefinition],
   });
@@ -57,7 +57,7 @@ const messages = [
 
     // 3. Final Call: Get the natural language summary
     const finalResponse = await ollama.chat({
-      model: "llama3.2",
+      model: "qwen3-vl:30b",
       messages: messages,
       tools: [silverToolDefinition],
     });
