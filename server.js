@@ -2,11 +2,11 @@ import express from "express";
 import ollama from "ollama";
 
 //tools
-import { exchangeRate, getSilverCoinPrice,  getSilverPricePrediction }from "./tools.js";
+import { exchangeRate, getSilverCoinPrice, getSilverPricePrediction, getCurrentWeather } from "./tools.js";
 
 
 //definitions
-import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition } from "./tools.js";
+import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition } from "./tools.js";
 const app = express();
 const PORT = 3000;
 
@@ -15,7 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 const availableTools = {
   'getSilverCoinPrice': getSilverCoinPrice,
-  'getSilverPricePrediction': getSilverPricePrediction
+  'getSilverPricePrediction': getSilverPricePrediction,
+  'getCurrentWeather': getCurrentWeather
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -41,37 +42,49 @@ app.post("/process-audio", async (req, res) => {
   let response = await ollama.chat({ //TODO: disable thinking if endabled 
     model: "qwen3:8b", // TODO: download and test qwen3:8b-q4_0 or llama3.2:3b for faster runtime
     messages,
-    tools: [getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition],
+    tools: [getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
 
-if (response.message.tool_calls?.length) {
-  const toolName = response.message.tool_calls[0].function.name
-  console.log("Tool call:", toolName);
-  
-  const toolOutput = await availableTools[toolName]();
-  console.log("Tool result:", toolOutput);
-  
-  // append tool result
-  const messagesWithToolResult = [
-    ...messages, 
-    response.message,  // assistant's tool call
-    {
-      role: "tool",
-      tool_name: toolName,
-      content: JSON.stringify(toolOutput)  // Stringify JSON here
+  if (response.message.tool_calls?.length) {
+    const toolName = response.message.tool_calls[0].function.name;
+    const toolArgs = response.message.tool_calls[0].function.arguments;
+    console.log("Tool call:", toolName, "Args:", toolArgs);
+
+    let toolOutput;
+    if (Object.keys(toolArgs).length > 0) {
+      toolOutput = await availableTools[toolName](...Object.values(toolArgs));
+    } else {
+      toolOutput = await availableTools[toolName]();
     }
-  ];
+    console.log("Tool result:", toolOutput);
 
-  const finalResponse = await ollama.chat({
-    model: "qwen3:8b",
-    messages: messagesWithToolResult,
-    stream: false
-  });
+    // append tool result
+    const messagesWithToolResult = [
+      ...messages,
+      response.message,  // assistant's tool call
+      {
+        role: "tool",
+        tool_name: toolName,
+        content: JSON.stringify(toolOutput)  // Stringify JSON here
+      }
+    ];
 
-  const time = (Date.now() - start) / 1000;
-  return res.json({ text: finalResponse.message.content, time, exchangeRate });
-}
+    const finalResponse = await ollama.chat({
+      model: "qwen3:8b",
+      messages: messagesWithToolResult,
+      stream: false
+    });
+
+    const time = (Date.now() - start) / 1000;
+    return res.json(
+      {
+        text: finalResponse.message.content,
+        time,
+        USDtoPLN: exchangeRate
+      }
+    );
+  }
 
 });
 
