@@ -2,7 +2,7 @@ import express from "express";
 import ollama from "ollama";
 
 //tools
-import { getSilverCoinPrice,  getSilverPricePrediction }from "./tools.js";
+import { exchangeRate, getSilverCoinPrice,  getSilverPricePrediction }from "./tools.js";
 
 
 //definitions
@@ -42,7 +42,7 @@ app.post("/process-audio", async (req, res) => {
     model: "qwen3:8b", // TODO: download and test qwen3:8b-q4_0 or llama3.2:3b for faster runtime
     messages,
     tools: [getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition],
-    options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection
+    options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
 
 if (response.message.tool_calls?.length) {
@@ -70,7 +70,7 @@ if (response.message.tool_calls?.length) {
   });
 
   const time = (Date.now() - start) / 1000;
-  return res.json({ text: finalResponse.message.content, time });
+  return res.json({ text: finalResponse.message.content, time, exchangeRate });
 }
 
 });
