@@ -2,11 +2,11 @@ import express from "express";
 import ollama from "ollama";
 
 //tools
-import { exchangeRate, getSilverCoinPrice, getSilverPricePrediction, getCurrentWeather } from "./tools.js";
+import { exchangeRate, getSilverCoinPrice, getSilverPricePrediction, getCurrentWeather, getFutureCalendarEvents, addCalendarEvent } from "./tools/tools.js";
 
 
 //definitions
-import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition } from "./tools.js";
+import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition, getFutureCalendarEventsToolDefinition, addCalendarEventToolDefinition } from "./tools/definitions.js";
 const app = express();
 const PORT = 3000;
 
@@ -16,7 +16,9 @@ app.use(express.urlencoded({ extended: true }));
 const availableTools = {
   'getSilverCoinPrice': getSilverCoinPrice,
   'getSilverPricePrediction': getSilverPricePrediction,
-  'getCurrentWeather': getCurrentWeather
+  'getCurrentWeather': getCurrentWeather,
+  'getFutureCalendarEvents': getFutureCalendarEvents,
+  'addCalendarEvent': addCalendarEvent
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -34,6 +36,8 @@ app.post("/process-audio", async (req, res) => {
 - nie halucynuj, bierz zawsze dokładny wynik z narzędzia
 - jeśli narzedzie zwraca więcej niż jedną informację, wybierz tylko właściwą, lub tylko właściwe dla zapytania użytkownika
 - jeśli w odpowiedzi z narzędzia dostaniesz jakąkolwiek wiadomość o kursie walutowym, zawrzyj ją w odpowiedzi, ale jedynie jako np.: 'kurs: 1USD -> 3.5PLN', odpowiednio dla otrzymanej odpowiedzi. Jeśli nie dostaniesz w odpowiedzi z narzędzia informacji o kurssie walut nie wymyślaj jej, po prostu jej nie podawaj
+
+Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
 `
     },
     { role: "user", content: userText }
@@ -42,7 +46,13 @@ app.post("/process-audio", async (req, res) => {
   let response = await ollama.chat({ //TODO: disable thinking if endabled 
     model: "qwen3:8b", // TODO: download and test qwen3:8b-q4_0 or llama3.2:3b for faster runtime
     messages,
-    tools: [getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition],
+    tools: [
+      getSilverCoinPriceToolDefinition,
+      getSilverPricePredictionToolDefinition,
+      getCurrentWeatherToolDefinition,
+      getFutureCalendarEventsToolDefinition,
+      addCalendarEventToolDefinition
+    ],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
 
@@ -53,7 +63,7 @@ app.post("/process-audio", async (req, res) => {
 
     let toolOutput;
     if (Object.keys(toolArgs).length > 0) {
-      toolOutput = await availableTools[toolName](...Object.values(toolArgs));
+      toolOutput = await availableTools[toolName](toolArgs);
     } else {
       toolOutput = await availableTools[toolName]();
     }
@@ -66,14 +76,14 @@ app.post("/process-audio", async (req, res) => {
       {
         role: "tool",
         tool_name: toolName,
-        content: JSON.stringify(toolOutput)  // Stringify JSON here
+        content: JSON.stringify(toolOutput)  // Stringify JSON here only once
       }
     ];
 
     const finalResponse = await ollama.chat({
       model: "qwen3:8b",
       messages: messagesWithToolResult,
-      stream: false
+      stream: false // todo: get to know what that does
     });
 
     const time = (Date.now() - start) / 1000;

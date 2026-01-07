@@ -1,6 +1,13 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+import ical from "node-ical";
+import { google } from "googleapis";
+import { getCalendarClients } from "./auth.js";
 
+
+//-----------------TOOLS-----------------
+
+//     PRECIOUS METALS
 async function getSilverCoinPrice() {
   try {
     const { data } = await axios.get("https://tavex.pl/srebro/srebrny-krugerrand-1-oz/");
@@ -93,7 +100,8 @@ async function getGoldPricePrediction() {
   }
 }
 
-async function getCurrentWeather(city) {
+//     WEATHER
+async function getCurrentWeather({ city }) {
   try {
     // 1. Geocoding
     const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=pl&format=json`;
@@ -132,40 +140,93 @@ async function getCurrentWeather(city) {
   }
 }
 
-const getCurrentWeatherToolDefinition = {
-  type: "function",
-  function: {
-    name: "getCurrentWeather",
-    description: "Aktualna pogoda w podanym mieście",
-    parameters: { type: "object", properties: { city: { type: "string" } } }
+
+//      CALENDAR
+//CALENDAR TODO implement mark as resolved task in function
+
+
+
+//info: for now the getCalendarEvents only return specific fixed data -> following week
+//getFutureCalendarEvents TODO: implement different functions for different user details
+async function getFutureCalendarEvents() {
+  try {
+    // 1. Fetch data (it returns a Promise, so we must await)
+    // The structure returned is an OBJECT, not an array.
+    // Keys are UIDs, values are the event objects.
+    const data = await ical.async.fromURL(process.env.ICAL_URL);
+
+    // 2. Data processing
+    const now = new Date();
+    const activeEvents = Object.values(data) // Convert Object values to Array to iterate
+      .filter(event => {
+        return event.type === 'VEVENT' && // We only want events, not timezone metadata
+          event.start >= now;        // Only future events
+      })
+      .sort((a, b) => a.start - b.start)  // Sort by start date (ascending)
+      .slice(0, 10);                      // Limit to next 10 events to save tokens
+
+    // 3. Formatting for the AI
+    const formattedEvents = activeEvents.map(event => {
+      return {
+        wydarzenie: event.summary,
+        data: event.start.toLocaleString('pl-PL'), // Format date nicely
+        opis: event.description,
+        lokalizacja: event.location || 'Brak lokalizacji'
+      };
+    });
+
+    return formattedEvents.length > 0 ? formattedEvents : "Brak nadchodzących wydarzeń.";
+
+  } catch (error) {
+    return { error: "Błąd podczas pobierania kalendarza: " + error.message };
   }
 }
 
-const getSilverCoinPriceToolDefinition = {
-  type: "function",
-  function: {
-    name: "getSilverCoinPrice",  // tak samo jak w available tools
-    description: "Aktualna cena skupu Krugerrand 1oz srebra z Tavex.pl",
-    parameters: { type: "object", properties: {} }
+
+async function addCalendarEvent({ summary, startTime, durationInMinutes = 60, description = "" }) {
+  try {
+    startTime = new Date(startTime);
+    const auth = getCalendarClients();
+    const client = await auth.getClient();
+    const calendar = google.calendar({ version: "v3", auth: client });
+
+    const endTime = new Date(startTime.getTime() + durationInMinutes * 60 * 1000);
+
+    const event = {
+      summary: summary,
+      start: { dateTime: startTime.toISOString(), timeZone: 'Europe/Warsaw' },
+      description: description,
+      end: { dateTime: endTime.toISOString(), timeZone: 'Europe/Warsaw' },
+    }
+
+    // Debug log to show the exact payload we are sending
+    console.log("Sending event to Google:", JSON.stringify(event, null, 2));
+
+    const response = await calendar.events.insert({
+      calendarId: 'oskarskoora@gmail.com',
+      resource: event
+    });
+
+    console.log("Event created! Link:", response.data.htmlLink);
+    return {
+      success: true,
+      message: "Wydarzenie zostało dodane do kalendarza.",
+      link: response.data.htmlLink
+    };
+
+  } catch (error) {
+    console.error("Calendar Error:", error);
+    return { error: "Błąd podczas dodawania wydarzenia: " + error.message };
   }
+}
+
+
+export {
+  getSilverCoinPrice,
+  getSilverPricePrediction,
+  getGoldPricePrediction,
+  getCurrentWeather,
+  getFutureCalendarEvents,
+  addCalendarEvent,
+  exchangeRate
 };
-
-const getSilverPricePredictionToolDefinition = {
-  type: "function",
-  function: {
-    name: "getSilverPricePrediction",
-    description: "Aktualna predykcja/przewidywanie ceny srebra na miesiąc i na trzy miesiące do przodu",
-    parameters: { type: "object", properties: {} }
-  }
-}
-
-const getGoldPricePredictionToolDefinition = {
-  type: "function",
-  function: {
-    name: "getGoldPricePrediction",
-    description: "Aktualna predykcja/przewidywanie ceny złota na miesiąc i na trzy miesiące do przodu",
-    parameters: { type: "object", properties: {} }
-  }
-}
-
-export { getSilverCoinPrice, getSilverCoinPriceToolDefinition, getSilverPricePrediction, getSilverPricePredictionToolDefinition, exchangeRate, getGoldPricePrediction, getGoldPricePredictionToolDefinition, getCurrentWeather, getCurrentWeatherToolDefinition };
