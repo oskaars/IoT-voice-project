@@ -3,6 +3,8 @@ import * as cheerio from "cheerio";
 import ical from "node-ical";
 import { google } from "googleapis";
 import { getCalendarClients } from "./auth.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 //-----------------TOOLS-----------------
@@ -143,6 +145,8 @@ async function getCurrentWeather({ city }) {
 
 //      CALENDAR
 //CALENDAR TODO implement mark as resolved task in function
+//CALENDAR TODO add event removal
+
 
 
 
@@ -182,28 +186,39 @@ async function getTenFutureCalendarEvents() {
   }
 }
 
-async function getNFutureCalendarEvents(numberOfEvents){
+async function getNFutureCalendarEvents({ numberOfEvents }){
   try{
-    const data = await ical.async.fromURL(process.env.ICAL_URL);
-    const now = new Date()
-    const activeEvents = Object.values(data)
-      .filter(event =>{
-        return event.type === 'VEVENT' && event.start >= now
-      })
-      .sort((a,b) => a.start - b.start)
-      .slice(0, numberOfEvents)
+    const auth = getCalendarClients();
+    const client = await auth.getClient();
+    const calendar = google.calendar({ version: "v3", auth: client})
 
-    const formattedEvents = activeEvents.map(event => {
-      return {
-        wydarzenie: event.summary,
-        data: event.start.toLocaleString('pl-PL'), // Format date nicely
-        opis: event.description,
-        lokalizacja: event.location || 'Brak lokalizacji'
-      };
-    });
+    const now = new Date().toISOString();
+    const response = await calendar.events.list({
+      calendarId: 'oskarskoora@gmail.com',
+      timeMin: now,
+      maxResults: numberOfEvents,
+      singleEvents: true,
+      orderBy: 'startTime'
+    })
+    
+  const events = response.data.items;
+  if(events.length === 0){
+    return "Brak nadchodzących wydarzeń.";
+  }
 
-    return formattedEvents.length > 0 ? formattedEvents : "Brak nadchodzących wydarzeń.";
+  const formattedEvents = events.map(event => {
+    return {
+      wydarzenie: event.summary,
+      data: new Date(event.start.dateTime || event.start.date).toLocaleString('pl-PL'),
+      opis: event.description || 'Brak opisu',
+      lokalizacja: event.location || 'Brak lokalizacji',
+      link: event.htmlLink
+    }
+  })
 
+  return formattedEvents
+  
+    
   }catch(error){
     console.error('getNFutureCalendarEvents error:', error.message)
     return {error:"getNFutureCalendarEvents error:" + error.message}

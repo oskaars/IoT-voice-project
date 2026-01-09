@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from "express";
 import ollama from "ollama";
 
@@ -89,9 +90,14 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
     });
 
     const time = (Date.now() - start) / 1000;
+
+    const cleanedText = finalResponse.message.content
+      .replace(/\n/g, ' ')      // Replace newlines with spaces
+      .replace(/\s+/g, ' ')     // Collapse multiple spaces into one
+      .replace(/\*\*/g, '');    // Remove markdown bold markers
     return res.json(
       {
-        text: finalResponse.message.content,
+        text: cleanedText,
         time,
         USDtoPLN: exchangeRate
       }
