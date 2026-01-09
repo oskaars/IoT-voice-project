@@ -148,7 +148,7 @@ async function getCurrentWeather({ city }) {
 
 //info: for now the getCalendarEvents only return specific fixed data -> following week
 //getFutureCalendarEvents TODO: implement different functions for different user details
-async function getFutureCalendarEvents() {
+async function getTenFutureCalendarEvents() {
   try {
     // 1. Fetch data (it returns a Promise, so we must await)
     // The structure returned is an OBJECT, not an array.
@@ -180,6 +180,35 @@ async function getFutureCalendarEvents() {
   } catch (error) {
     return { error: "Błąd podczas pobierania kalendarza: " + error.message };
   }
+}
+
+async function getNFutureCalendarEvents(numberOfEvents){
+  try{
+    const data = await ical.async.fromURL(process.env.ICAL_URL);
+    const now = new Date()
+    const activeEvents = Object.values(data)
+      .filter(event =>{
+        return event.type === 'VEVENT' && event.start >= now
+      })
+      .sort((a,b) => a.start - b.start)
+      .slice(0, numberOfEvents)
+
+    const formattedEvents = activeEvents.map(event => {
+      return {
+        wydarzenie: event.summary,
+        data: event.start.toLocaleString('pl-PL'), // Format date nicely
+        opis: event.description,
+        lokalizacja: event.location || 'Brak lokalizacji'
+      };
+    });
+
+    return formattedEvents.length > 0 ? formattedEvents : "Brak nadchodzących wydarzeń.";
+
+  }catch(error){
+    console.error('getNFutureCalendarEvents error:', error.message)
+    return {error:"getNFutureCalendarEvents error:" + error.message}
+  }
+
 }
 
 
@@ -221,12 +250,15 @@ async function addCalendarEvent({ summary, startTime, durationInMinutes = 60, de
 }
 
 
+
+
 export {
   getSilverCoinPrice,
   getSilverPricePrediction,
   getGoldPricePrediction,
   getCurrentWeather,
-  getFutureCalendarEvents,
+  getTenFutureCalendarEvents,
+  getNFutureCalendarEvents,
   addCalendarEvent,
   exchangeRate
 };

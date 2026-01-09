@@ -2,11 +2,11 @@ import express from "express";
 import ollama from "ollama";
 
 //tools
-import { exchangeRate, getSilverCoinPrice, getSilverPricePrediction, getCurrentWeather, getFutureCalendarEvents, addCalendarEvent } from "./tools/tools.js";
+import { exchangeRate, getSilverCoinPrice, getSilverPricePrediction, getCurrentWeather, getTenFutureCalendarEvents, addCalendarEvent, getNFutureCalendarEvents } from "./tools/tools.js";
 
 
 //definitions
-import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition, getFutureCalendarEventsToolDefinition, addCalendarEventToolDefinition } from "./tools/definitions.js";
+import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition, getTenFutureCalendarEventsToolDefinition, addCalendarEventToolDefinition, getNFutureCalendarEventsToolDefinition } from "./tools/definitions.js";
 const app = express();
 const PORT = 3000;
 
@@ -17,7 +17,8 @@ const availableTools = {
   'getSilverCoinPrice': getSilverCoinPrice,
   'getSilverPricePrediction': getSilverPricePrediction,
   'getCurrentWeather': getCurrentWeather,
-  'getFutureCalendarEvents': getFutureCalendarEvents,
+  'getFutureCalendarEvents': getTenFutureCalendarEvents,
+  'getNFutureCalendarEvents': getNFutureCalendarEvents,
   'addCalendarEvent': addCalendarEvent
 };
 
@@ -43,14 +44,15 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
     { role: "user", content: userText }
   ];
 
-  let response = await ollama.chat({ //TODO: disable thinking if endabled 
+  let response = await ollama.chat({
     model: "qwen3:8b", // TODO: download and test qwen3:8b-q4_0 or llama3.2:3b for faster runtime
     messages,
     tools: [
       getSilverCoinPriceToolDefinition,
       getSilverPricePredictionToolDefinition,
       getCurrentWeatherToolDefinition,
-      getFutureCalendarEventsToolDefinition,
+      getTenFutureCalendarEventsToolDefinition,
+      getNFutureCalendarEventsToolDefinition,
       addCalendarEventToolDefinition
     ],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now

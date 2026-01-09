@@ -33,7 +33,7 @@ const getGoldPricePredictionToolDefinition = {
     parameters: { type: "object", properties: {} }
   }
 }
-const getFutureCalendarEventsToolDefinition = {
+const getTenFutureCalendarEventsToolDefinition = {
   type: "function",
   function: {
     name: "getCalendarEvents",
@@ -42,14 +42,24 @@ const getFutureCalendarEventsToolDefinition = {
   }
 }
 
+const getNFutureCalendarEventsToolDefinition = {
+  type: "function",
+  function: {
+    name: "getNFutureCalendarEvents",
+    description: "Zwraca określoną przez użytkownika ilość najbliszych wydarzeń z kalendarza",
+    parameters: {type: "object", properties: {numberOfEvents: {type: "integer"}}}
+  }
+}
+
 const addCalendarEventToolDefinition = {
   type: "function",
   function: {
     name: "addCalendarEvent",
     description: "Dodaje wydarzenie do kalendarza, użytkownik może podać tytuł, godzinę rozpoczęcia, czas trwania w minutach i opis wydarzenia. Czas trwania jest domyślnie ustwaiony na 60 minut, opis jets opcjonalny.",
-    parameters: { type: "object", properties: {summary: {type: "string"}, startTime: {type: "string"}, durationInMinutes: {type: "integer"}, description: {type: "string"}}}
+    parameters: { type: "object", properties: { summary: { type: "string" }, startTime: { type: "string" }, durationInMinutes: { type: "integer" }, description: { type: "string" } } }
   }
 }
+
 
 
 export {
@@ -57,6 +67,7 @@ export {
   getSilverCoinPriceToolDefinition,
   getSilverPricePredictionToolDefinition,
   getGoldPricePredictionToolDefinition,
-  getFutureCalendarEventsToolDefinition,
+  getTenFutureCalendarEventsToolDefinition,
+  getNFutureCalendarEventsToolDefinition,
   addCalendarEventToolDefinition
 }
