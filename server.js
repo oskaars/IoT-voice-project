@@ -3,11 +3,12 @@ import express from "express";
 import ollama from "ollama";
 
 //tools
-import { exchangeRate, getSilverCoinPrice, getSilverPricePrediction, getCurrentWeather, getTenFutureCalendarEvents, addCalendarEvent, getNFutureCalendarEvents } from "./tools/tools.js";
-
+import { getCurrentWeather } from "./tools/other/otherTools.js";
+import { getSilverCoinPrice, getSilverPricePrediction, getGoldPricePrediction, exchangeRate } from './tools/metals/metals.js';
+import { getNFutureCalendarEvents, addCalendarEvent } from './tools/calendar/calendarOperations.js';
 
 //definitions
-import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition, getTenFutureCalendarEventsToolDefinition, addCalendarEventToolDefinition, getNFutureCalendarEventsToolDefinition } from "./tools/definitions.js";
+import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition, getTenFutureCalendarEventsToolDefinition, addCalendarEventToolDefinition, getNFutureCalendarEventsToolDefinition } from "./definitions/definitions.js";
 const app = express();
 const PORT = 3000;
 
@@ -17,8 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 const availableTools = {
   'getSilverCoinPrice': getSilverCoinPrice,
   'getSilverPricePrediction': getSilverPricePrediction,
+  'getGoldPricePrediction': getGoldPricePrediction,
   'getCurrentWeather': getCurrentWeather,
-  'getFutureCalendarEvents': getTenFutureCalendarEvents,
   'getNFutureCalendarEvents': getNFutureCalendarEvents,
   'addCalendarEvent': addCalendarEvent
 };
@@ -52,7 +53,6 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       getSilverCoinPriceToolDefinition,
       getSilverPricePredictionToolDefinition,
       getCurrentWeatherToolDefinition,
-      getTenFutureCalendarEventsToolDefinition,
       getNFutureCalendarEventsToolDefinition,
       addCalendarEventToolDefinition
     ],
