@@ -99,5 +99,6 @@ async function getGoldPricePrediction() {
 export {
     getSilverCoinPrice,
     getSilverPricePrediction,
-    getGoldPricePrediction
+    getGoldPricePrediction,
+    exchangeRate
 }

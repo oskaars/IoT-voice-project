@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { getCalendarClients } from "../auth/auth.js";
+import { getCalendarClients } from "../../auth/auth.js";
 
 
 
