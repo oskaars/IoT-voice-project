@@ -60,6 +60,24 @@ const addCalendarEventToolDefinition = {
   }
 }
 
+const getPokemonInfoToolDefinition = {
+  type: "function",
+  function: {
+    name: "getPokemonInfo",
+    description: "Informacje o pokemonie podanym przez użytkownika; informacje to nazwa, wysokosc, waga, typy, lista wszytskich umiejętności jakie dany pokemon moż zdobyć oraz jego uniklany numer.",
+    parameters: {type: "object", properties: {pokemonName: {type: "string"}}}
+  }
+}
+
+const hasEvolutionToolDefinition = {
+  type: "function",
+  function: {
+    name: "hasEvolution",
+    description: "Sprawdza czy dany pokemon ma ewolucję, lub praewolucję, zwraca cały łańcuch ewolucji",
+    parameters: {type: "object", properties: {pokemonName: {type: "string"}}}
+  }
+}
+
 
 
 export {
@@ -69,5 +87,7 @@ export {
   getGoldPricePredictionToolDefinition,
   getTenFutureCalendarEventsToolDefinition,
   getNFutureCalendarEventsToolDefinition,
-  addCalendarEventToolDefinition
+  addCalendarEventToolDefinition,
+  getPokemonInfoToolDefinition,
+  hasEvolutionToolDefinition
 }

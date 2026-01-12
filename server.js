@@ -6,9 +6,19 @@ import ollama from "ollama";
 import { getCurrentWeather } from "./tools/other/otherTools.js";
 import { getSilverCoinPrice, getSilverPricePrediction, getGoldPricePrediction, exchangeRate } from './tools/metals/metals.js';
 import { getNFutureCalendarEvents, addCalendarEvent } from './tools/calendar/calendarOperations.js';
+import { getPokemonInfo, hasEvolution } from './tools/pokemon/pokemon.js';
 
 //definitions
-import { getSilverCoinPriceToolDefinition, getSilverPricePredictionToolDefinition, getCurrentWeatherToolDefinition, getTenFutureCalendarEventsToolDefinition, addCalendarEventToolDefinition, getNFutureCalendarEventsToolDefinition } from "./definitions/definitions.js";
+import {
+  getSilverCoinPriceToolDefinition,
+  getSilverPricePredictionToolDefinition,
+  getCurrentWeatherToolDefinition,
+  addCalendarEventToolDefinition,
+  getNFutureCalendarEventsToolDefinition,
+  getPokemonInfoToolDefinition,
+  hasEvolutionToolDefinition
+} from "./definitions/definitions.js";
+
 const app = express();
 const PORT = 3000;
 
@@ -21,7 +31,9 @@ const availableTools = {
   'getGoldPricePrediction': getGoldPricePrediction,
   'getCurrentWeather': getCurrentWeather,
   'getNFutureCalendarEvents': getNFutureCalendarEvents,
-  'addCalendarEvent': addCalendarEvent
+  'addCalendarEvent': addCalendarEvent,
+  'getPokemonInfo': getPokemonInfo,
+  'hasEvolution': hasEvolution
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -54,7 +66,9 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       getSilverPricePredictionToolDefinition,
       getCurrentWeatherToolDefinition,
       getNFutureCalendarEventsToolDefinition,
-      addCalendarEventToolDefinition
+      addCalendarEventToolDefinition,
+      getPokemonInfoToolDefinition,
+      hasEvolutionToolDefinition
     ],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
@@ -95,6 +109,8 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       .replace(/\n/g, ' ')      // Replace newlines with spaces
       .replace(/\s+/g, ' ')     // Collapse multiple spaces into one
       .replace(/\*\*/g, '');    // Remove markdown bold markers
+
+    console.log(cleanedText)
     return res.json(
       {
         text: cleanedText,
