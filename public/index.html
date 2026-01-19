@@ -6,7 +6,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UI for my IoT project</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #ffe6f0;
+            --bg-app: #ffcce0;
+            --bg-input: #fffdd0;
+            --accent-blue: #cce0ff;
+            --btn-color: #ff99bb;
+            --btn-hover: #ff80aa;
+            --border: #2e2e2e;
+        }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 700px;
+            height: 500px;
+            background-color: var(--bg-app);
+            border: 4px solid var(--border);
+
+            box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .title-bar {
+            height: 40px;
+            background-color: var(--accent-blue);
+            border-bottom: 4px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 24px;
+            color: var(--border);
+            letter-spacing: 1px;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .window-controls div {
+            width: 20px;
+            height: 20px;
+            background: #ff80aa;
+            border: 2px solid var(--border);
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .content {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px
+        }
+    </style>
 </head>
 
 <body>
@@ -23,11 +97,11 @@
                 <label>Wpisz jakąś wiadomość: </label>
                 <input type="text" class="pixel-input" id="userInput" placeholder="Wpisz tu tekst...">
             </div>
-            <button class="pixel-btn" onclick="sendMessage()">WYŚLIJ</button>
+            <button class="pixel-btn" onclick="sendMessage()">SEND</button>
 
             <div class="response-box">
                 <div class="decoration flower-2">✦</div>
-                <label style="font-size: 24px;">Odpowiedź:</label>
+                <label id="label1" style="font-size: 24px;">Answer: </label>
                 <div class="response-text" id="responseArea">
                     ... Oczekiwanie na dane ...
                 </div>
@@ -37,10 +111,35 @@
     </div>
 
     <script>
-        function sendMessage(){
+        function sendMessage() {
             const input = document.getElementById('userInput')
             const output = document.getElementById('responseArea')
-            
+            const button = document.getElementsByClassName('pixel-btn')[0]
+            const label = document.getElementById('label1')
+
+            output.innerText = "poczekaj chwilę, ładuję się c:" //toadd some fancy ahh loading animation 
+            button.disabled = true
+            label1.style.visibility = 'hidden'
+            const text = input.value
+
+
+            fetch('http://localhost:3000/process-audio', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            })
+                .then(response => response.json())
+
+                .then(data => {
+                    output.innerText = data.text
+                })
+                .catch(error => {
+                    output.innerText = error.message
+                })
+                .finally(() => {
+                    button.disabled = false
+                })
+
         }
     </script>
 </body>
