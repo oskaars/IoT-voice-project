@@ -1,3 +1,5 @@
+import { describe } from "node:test";
+
 const getCurrentWeatherToolDefinition = {
   type: "function",
   function: {
@@ -11,7 +13,7 @@ const getSilverCoinPriceToolDefinition = {
   type: "function",
   function: {
     name: "getSilverCoinPrice",  // tak samo jak w available tools
-    description: "Aktualna cena skupu Krugerrand 1oz srebra z Tavex.pl",
+    description: "Aktualna cena skupu Krugerrand 1oz srebra z Tavex.pl, używaj, gdy użytkownik zada jakiekolwiek pytanie o srebro oprócz przewidywania/przyszłości",
     parameters: { type: "object", properties: {} }
   }
 };
@@ -118,10 +120,27 @@ const sendEmailToolDefinition = {
       {
         to: { type: "string" },
         subject: { type: "string" },
-         body: { type: "string"} 
+        body: { type: "string" }
       }
     }
   }
+}
+
+const setTimerToolDefinition = {
+  type: "function",
+  function: {
+    name: "setTimer",
+    description: "ustawia timer na określoną liczbę sekund, wraz z treścią powiadomienia, czyli np. ustaw timer na zaparzenie herbaty na 5 minut to message to zaparzenie herbaty, a seconds to 5min* 60s = 300. Jeśli użytkownik poda czas w innej jednostce czasu, zamień ją odpowiednio na sekundy.",
+    parameters: {
+      type: "object",
+      properties: {
+        seconds: { type: "integer" },
+        message: { type: "string" }
+      }
+    }
+  }
+
+
 }
 
 
@@ -138,5 +157,6 @@ export {
   searchYoutubeToolDefinition,
   randNumberToolDefinition,
   openAppToolDefinition,
-  sendEmailToolDefinition
+  sendEmailToolDefinition,
+  setTimerToolDefinition
 }

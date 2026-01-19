@@ -11,11 +11,13 @@ import { searchYoutube } from './tools/youtube/searchYt.js';
 import { randNumber } from './tools/local/randNumber.js';
 import { openApp } from './tools/local/openApp.js';
 import { sendEmail } from './tools/other/sendEmail.js';
+import { setTimer } from './tools/local/setTimer.js';
 
 //definitions
 import {
   getSilverCoinPriceToolDefinition,
   getSilverPricePredictionToolDefinition,
+  getGoldPricePredictionToolDefinition,
   getCurrentWeatherToolDefinition,
   addCalendarEventToolDefinition,
   getNFutureCalendarEventsToolDefinition,
@@ -24,7 +26,8 @@ import {
   searchYoutubeToolDefinition,
   randNumberToolDefinition,
   openAppToolDefinition,
-  sendEmailToolDefinition
+  sendEmailToolDefinition,
+  setTimerToolDefinition
 } from "./definitions/definitions.js";
 
 const app = express();
@@ -45,7 +48,8 @@ const availableTools = {
   'searchYoutube': searchYoutube,
   'randNumber': randNumber,
   'openApp': openApp,
-  'sendEmail': sendEmail
+  'sendEmail': sendEmail,
+  'setTimer': setTimer
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -71,11 +75,12 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
   ];
 
   let response = await ollama.chat({
-    model: "qwen3:8b", // TODO: download and test qwen3:8b-q4_0 or llama3.2:3b for faster runtime
+    model: "llama3.2:3b", // TODO: download and test qwen3:8b-q4_0 or llama3.2:3b for faster runtime
     messages,
     tools: [
       getSilverCoinPriceToolDefinition,
       getSilverPricePredictionToolDefinition,
+      getGoldPricePredictionToolDefinition,
       getCurrentWeatherToolDefinition,
       getNFutureCalendarEventsToolDefinition,
       addCalendarEventToolDefinition,
@@ -84,7 +89,8 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       searchYoutubeToolDefinition,
       randNumberToolDefinition,
       openAppToolDefinition,
-      sendEmailToolDefinition
+      sendEmailToolDefinition,
+      setTimerToolDefinition
     ],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
@@ -114,7 +120,7 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
     ];
 
     const finalResponse = await ollama.chat({
-      model: "qwen3:8b",
+      model: "qwen3:4b", //here the analyzing takes a bit too long imo
       messages: messagesWithToolResult,
       stream: false // todo: get to know what that does
     });

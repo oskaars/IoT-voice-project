@@ -80,6 +80,61 @@
             justify-content: center;
             gap: 30px
         }
+
+        .pixel-input {
+            width: 100%;
+            height: 70px;
+            background-color: var(--bg-input);
+            border: 4px solid var(--border);
+            font-family: 'VT323', monospace;
+            font-size: 36px;
+            color: var(--border);
+            padding: 10px 20px;
+            outline: none;
+            box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .pixel-input::placeholder {
+            color: #dcbcc6;
+        }
+
+        .pixel-btn {
+            margin-top: 20px;
+            background-color: white;
+            border: 4px solid var(--border);
+            padding: 10px 40px;
+            font-family: 'VT323', monospace;
+            font-size: 32px;
+            cursor: pointer;
+            box-shadow: 6px 6px 0px var(--border);
+            transition: all 0.1s;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .pixel-btn:active {
+            top: 4px;
+            left: 4px;
+            box-shadow: 2px 2px 0px var(--border);
+            background-color: #f0f0f0;
+        }
+
+        .pixel-btn:hover {
+            background-color: #fff5f8;
+        }
+
+        .response-box {
+            width: 100%;
+            flex: 1;
+            background-color: var(--bg-input);
+            border: 4px solid var(--border);
+            padding: 20px;
+            position: relative;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 
@@ -94,8 +149,8 @@
         </div>
         <div class="content">
             <div style="width:100%">
-                <label>Wpisz jakąś wiadomość: </label>
-                <input type="text" class="pixel-input" id="userInput" placeholder="Wpisz tu tekst...">
+                <label> Type a message here</label>
+                <input type="text" class="pixel-input" id="userInput" placeholder="Type message here...">
             </div>
             <button class="pixel-btn" onclick="sendMessage()">SEND</button>
 
@@ -103,24 +158,42 @@
                 <div class="decoration flower-2">✦</div>
                 <label id="label1" style="font-size: 24px;">Answer: </label>
                 <div class="response-text" id="responseArea">
-                    ... Oczekiwanie na dane ...
+                    ... Waiting for data ...
                 </div>
+                <div id="timeTaken"></div>
                 <div class="decoration flower-1">✿</div>
             </div>
         </div>
     </div>
 
     <script>
-        function sendMessage() {
-            const input = document.getElementById('userInput')
-            const output = document.getElementById('responseArea')
-            const button = document.getElementsByClassName('pixel-btn')[0]
-            const label = document.getElementById('label1')
+        const input = document.getElementById('userInput')
+        const button = document.getElementsByClassName('pixel-btn')[0]
+        button.disabled = true
+        button.innerText = "Type something c:"
 
-            output.innerText = "poczekaj chwilę, ładuję się c:" //toadd some fancy ahh loading animation 
-            button.disabled = true
-            label1.style.visibility = 'hidden'
+        input.addEventListener('input', () => {
+            if (input.value.trim().length < 1) {
+                button.disabled = true
+                button.innerText = "Type something c:"
+            } else {
+                button.disabled = false
+                button.innerText = "SEND"
+            }
+        })
+        function sendMessage() {
             const text = input.value
+            button.disabled = true
+
+
+            const output = document.getElementById('responseArea')
+            const label = document.getElementById('label1')
+            const responseBox = document.querySelector('.response-box')
+            const timeTaken = document.getElementById('timeTaken')
+
+            output.innerText = "wait a moment, it's loading c:" //toadd some fancy ahh loading animation 
+            button.disabled = true
+
 
 
             fetch('http://localhost:3000/process-audio', {
@@ -132,6 +205,8 @@
 
                 .then(data => {
                     output.innerText = data.text
+                    timeTaken.innerText = data.time
+
                 })
                 .catch(error => {
                     output.innerText = error.message
