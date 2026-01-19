@@ -2,9 +2,11 @@
   "name": "iot-voice-project",
   "version": "1.0.0",
   "type": "module",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "electron": "electron ."
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +15,7 @@
     "axios": "^1.13.2",
     "cheerio": "^1.1.0",
     "dotenv": "^17.2.3",
+    "electron": "^40.0.0",
     "express": "^5.2.1",
     "googleapis": "^169.0.0",
     "node": "^24.12.0",

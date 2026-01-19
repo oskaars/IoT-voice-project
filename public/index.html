@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI for my IoT project</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="title-bar">
+            <span>Ask me something c:</span>
+            <div class="window-controls">
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+        <div class="content">
+            <div style="width:100%">
+                <label>Wpisz jakąś wiadomość: </label>
+                <input type="text" class="pixel-input" id="userInput" placeholder="Wpisz tu tekst...">
+            </div>
+            <button class="pixel-btn" onclick="sendMessage()">WYŚLIJ</button>
+
+            <div class="response-box">
+                <div class="decoration flower-2">✦</div>
+                <label style="font-size: 24px;">Odpowiedź:</label>
+                <div class="response-text" id="responseArea">
+                    ... Oczekiwanie na dane ...
+                </div>
+                <div class="decoration flower-1">✿</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage(){
+            const input = document.getElementById('userInput')
+            const output = document.getElementById('responseArea')
+            
+        }
+    </script>
+</body>
+
+</html>

@@ -112,7 +112,15 @@ const sendEmailToolDefinition = {
   function: {
     name: "sendEmail",
     description: "Wysyła email do podanego odbiorcy z określonym tematem i treścią",
-    parameters: { type: "object", properties: { to: { type: "string" } }, subject: { type: "string" }, body: { type: "string" } }
+    parameters: {
+      type: "object",
+      properties:
+      {
+        to: { type: "string" },
+        subject: { type: "string" },
+         body: { type: "string"} 
+      }
+    }
   }
 }
 
