@@ -7,6 +7,10 @@ import { getCurrentWeather } from "./tools/other/otherTools.js";
 import { getSilverCoinPrice, getSilverPricePrediction, getGoldPricePrediction, exchangeRate } from './tools/metals/metals.js';
 import { getNFutureCalendarEvents, addCalendarEvent } from './tools/calendar/calendarOperations.js';
 import { getPokemonInfo, hasEvolution } from './tools/pokemon/pokemon.js';
+import { searchYoutube } from './tools/youtube/searchYt.js';
+import { randNumber } from './tools/local/randNumber.js';
+import { openApp } from './tools/local/openApp.js';
+import { sendEmail } from './tools/other/sendEmail.js';
 
 //definitions
 import {
@@ -16,7 +20,11 @@ import {
   addCalendarEventToolDefinition,
   getNFutureCalendarEventsToolDefinition,
   getPokemonInfoToolDefinition,
-  hasEvolutionToolDefinition
+  hasEvolutionToolDefinition,
+  searchYoutubeToolDefinition,
+  randNumberToolDefinition,
+  openAppToolDefinition,
+  sendEmailToolDefinition
 } from "./definitions/definitions.js";
 
 const app = express();
@@ -33,7 +41,11 @@ const availableTools = {
   'getNFutureCalendarEvents': getNFutureCalendarEvents,
   'addCalendarEvent': addCalendarEvent,
   'getPokemonInfo': getPokemonInfo,
-  'hasEvolution': hasEvolution
+  'hasEvolution': hasEvolution,
+  'searchYoutube': searchYoutube,
+  'randNumber': randNumber,
+  'openApp': openApp,
+  'sendEmail': sendEmail
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -68,7 +80,11 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       getNFutureCalendarEventsToolDefinition,
       addCalendarEventToolDefinition,
       getPokemonInfoToolDefinition,
-      hasEvolutionToolDefinition
+      hasEvolutionToolDefinition,
+      searchYoutubeToolDefinition,
+      randNumberToolDefinition,
+      openAppToolDefinition,
+      sendEmailToolDefinition
     ],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
