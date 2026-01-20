@@ -1,5 +1,7 @@
 import axios from "axios"
 import dotenv from "dotenv"
+import { exec } from "node:child_process";
+import { stderr, stdout } from "node:process";
 dotenv.config()
 
 async function searchYoutube({ query }) {
@@ -14,6 +16,23 @@ async function searchYoutube({ query }) {
             }
         });
 
+        response.data.items.forEach(video => {
+            return new Promise((resolve, reject) => {
+                const command = `open -u https://www.youtube.com/watch?v=${video.id.videoId}`
+
+                exec(command, (error, stdout, stderr) =>{
+                    if(error){
+                        console.error(`exec error: ${error}`)
+                        return resolve("error opening app" + error.message)
+                    }
+                    resolve("Success, fully opened " + video.id.videoId)
+                    console.log(`child process info: ${stdout}`)
+                })
+            })
+
+        });
+
+
         return response.data.items.map(video => ({
             tytuł: video.snippet.title,
             opis: video.snippet.description,
@@ -21,7 +40,7 @@ async function searchYoutube({ query }) {
         }))
     } catch (error) {
         console.error(error.message)
-        return { error: error.message}
+        return { error: error.message }
     }
 }
 
