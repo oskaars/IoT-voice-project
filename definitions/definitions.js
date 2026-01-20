@@ -1,4 +1,3 @@
-import { describe } from "node:test";
 
 const getCurrentWeatherToolDefinition = {
   type: "function",
@@ -139,7 +138,22 @@ const setTimerToolDefinition = {
       }
     }
   }
+}
 
+const mathOperationsToolDefinition = {
+  type: "function",
+  function:{
+    name: "mathOperations",
+    description: "wykonuje operację dodawania, odejmowania, dzielenia, mnożenia oraz modulo na dowolnych dwóch liczbach. Przyjmuje operator oraz dwie liczby ",
+    parameters: {
+      type: "object",
+      properties:{
+        operator: {type: 'char'},
+        number1: {type: 'float'},
+        number2: {type: 'float'}
+      }
+    }
+  }
 
 }
 
@@ -158,5 +172,6 @@ export {
   randNumberToolDefinition,
   openAppToolDefinition,
   sendEmailToolDefinition,
-  setTimerToolDefinition
+  setTimerToolDefinition,
+  mathOperationsToolDefinition
 }

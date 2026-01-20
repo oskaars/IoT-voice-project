@@ -12,6 +12,7 @@ import { randNumber } from './tools/local/randNumber.js';
 import { openApp } from './tools/local/openApp.js';
 import { sendEmail } from './tools/other/sendEmail.js';
 import { setTimer } from './tools/local/setTimer.js';
+import { mathOperations } from './tools/local/mathOperations.js';
 
 //definitions
 import {
@@ -27,7 +28,8 @@ import {
   randNumberToolDefinition,
   openAppToolDefinition,
   sendEmailToolDefinition,
-  setTimerToolDefinition
+  setTimerToolDefinition,
+  mathOperationsToolDefinition
 } from "./definitions/definitions.js";
 
 const app = express();
@@ -49,7 +51,8 @@ const availableTools = {
   'randNumber': randNumber,
   'openApp': openApp,
   'sendEmail': sendEmail,
-  'setTimer': setTimer
+  'setTimer': setTimer,
+  'mathOperations': mathOperations
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -60,14 +63,12 @@ app.post("/process-audio", async (req, res) => {
   const messages = [
     {
       role: "system",
-      content: `Jesteś pomocnym asystentem po polsku, gdy masz dane po polsku i po angielsku zawsze wybieraj te po polsku, zawsze gdy masz wybór między polską a inną walutą, wybierz polską. Odpowiadaj naturalnie i zwięźle.
-- Analizuj pytanie użytkownika
-- Użyj odpowiedniego narzędzia
-- Po otrzymaniu wyników z narzędzia, podaj zwięzłą odpowiedź po polsku, która zawiera tylko i wyłącznie odpowiedź na zapytanie użytkownika
-- nie halucynuj, bierz zawsze dokładny wynik z narzędzia
-- jeśli narzedzie zwraca więcej niż jedną informację, wybierz tylko właściwą, lub tylko właściwe dla zapytania użytkownika
-- jeśli w odpowiedzi z narzędzia dostaniesz jakąkolwiek wiadomość o kursie walutowym, zawrzyj ją w odpowiedzi, ale jedynie jako np.: 'kurs: 1USD -> 3.5PLN', odpowiednio dla otrzymanej odpowiedzi. Jeśli nie dostaniesz w odpowiedzi z narzędzia informacji o kurssie walut nie wymyślaj jej, po prostu jej nie podawaj
+      content: `Jesteś pomocnym asystentem. Odpowiadaj po polsku, krótko i naturalnie.
 
+ZAWSZE używaj dostępnych narzędzi, gdy pytanie dotyczy:
+- pogody, cen, kalendarza, pokemonów, YouTube, aplikacji, emaili, timerów, metali szlachetnych
+
+Jeśli narzędzie zwróci wynik, przekaż go użytkownikowi w prostych słowach.
 Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
 `
     },
@@ -90,7 +91,8 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       randNumberToolDefinition,
       openAppToolDefinition,
       sendEmailToolDefinition,
-      setTimerToolDefinition
+      setTimerToolDefinition,
+      mathOperationsToolDefinition
     ],
     options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
@@ -120,7 +122,7 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
     ];
 
     const finalResponse = await ollama.chat({
-      model: "qwen3:4b", //here the analyzing takes a bit too long imo
+      model: "llama3.2:3b", //here the analyzing takes a bit too long imo
       messages: messagesWithToolResult,
       stream: false // todo: get to know what that does
     });
@@ -141,6 +143,20 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       }
     );
   }
+
+  // No tool was called - return the model's direct response
+  const time = (Date.now() - start) / 1000;
+  const cleanedText = response.message.content
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\*\*/g, '');
+
+  console.log("No tool called, direct response:", cleanedText);
+  return res.json({
+    text: cleanedText || "Nie wiem jak odpowiedzieć na to pytanie.",
+    time,
+    USDtoPLN: exchangeRate
+  });
 
 });
 

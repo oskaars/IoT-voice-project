@@ -183,17 +183,14 @@
         })
         function sendMessage() {
             const text = input.value
-            button.disabled = true
-
-
             const output = document.getElementById('responseArea')
             const label = document.getElementById('label1')
             const responseBox = document.querySelector('.response-box')
             const timeTaken = document.getElementById('timeTaken')
 
-            output.innerText = "wait a moment, it's loading c:" //toadd some fancy ahh loading animation 
             button.disabled = true
-
+            timeTaken.innerText = ''
+            output.innerText = "wait a moment, it's loading c:"
 
 
             fetch('http://localhost:3000/process-audio', {
@@ -206,7 +203,6 @@
                 .then(data => {
                     output.innerText = data.text
                     timeTaken.innerText = data.time
-
                 })
                 .catch(error => {
                     output.innerText = error.message
