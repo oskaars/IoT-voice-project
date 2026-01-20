@@ -83,8 +83,14 @@ const searchYoutubeToolDefinition = {
   type: "function",
   function: {
     name: "searchYoutube",
-    description: "Wyszukuje film na youtube według query użytkownika. Zwraca tytuł, opis i link do filmu. Podczas przygotowania query upernij się, że jest to dobre zapytanie do szukania",
-    parameters: { type: "object", properties: { query: { type: "string" } } }
+    description: "Wyszukuje film na youtube według query użytkownika. Domyślnie maxResults jest ustawione na 1 i nie jest wymagane. Zwraca tytuł, opis i link do filmu.",
+    parameters: {
+      type: "object",
+      properties: {
+        query: { type: "string" },
+        maxResults: { type: "integer" }
+      }
+    }
   }
 
 }
@@ -142,15 +148,15 @@ const setTimerToolDefinition = {
 
 const mathOperationsToolDefinition = {
   type: "function",
-  function:{
+  function: {
     name: "mathOperations",
     description: "wykonuje operację dodawania, odejmowania, dzielenia, mnożenia oraz modulo na dowolnych dwóch liczbach. Przyjmuje operator oraz dwie liczby ",
     parameters: {
       type: "object",
-      properties:{
-        operator: {type: 'char'},
-        number1: {type: 'float'},
-        number2: {type: 'float'}
+      properties: {
+        operator: { type: 'char' },
+        number1: { type: 'integer' },
+        number2: { type: 'integer' }
       }
     }
   }

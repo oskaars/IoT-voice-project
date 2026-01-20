@@ -1,17 +1,16 @@
 import axios from "axios"
 import dotenv from "dotenv"
 import { exec } from "node:child_process";
-import { stderr, stdout } from "node:process";
 dotenv.config()
 
-async function searchYoutube({ query }) {
+async function searchYoutube({ query, maxResults = 1 }) {
     try {
         const response = await axios.get("https://www.googleapis.com/youtube/v3/search", {
             params: {
                 part: "snippet",
                 q: query,
                 type: "video",
-                maxResults: 3,
+                maxResults: maxResults,
                 key: process.env.YOUTUBE_API_KEY
             }
         });
