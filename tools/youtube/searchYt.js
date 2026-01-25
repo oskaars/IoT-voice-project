@@ -10,7 +10,7 @@ async function searchYoutube({ query, maxResults = 1 }) {
                 part: "snippet",
                 q: query,
                 type: "video",
-                maxResults: maxResults,
+                maxResults: parseInt(maxResults),
                 key: process.env.YOUTUBE_API_KEY
             }
         });

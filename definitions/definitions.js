@@ -163,6 +163,35 @@ const mathOperationsToolDefinition = {
 
 }
 
+const localSpotifyControlsToolDefinition = {
+  type: "function",
+  function: {
+    name: "localSpotifyControls",
+    description: "Kontroluje Spotify. Kluczowe akcje: 'name of current track' (zwraca TYTUŁ i ARTYSTĘ - używaj tego do pytań 'co teraz leci'), 'play', 'pause', 'next track', 'previous track'.",
+    parameters: {
+      properties: {
+        action: {
+          type: "string",
+          enum: [
+            "name of current track",
+            "next track",
+            "previous track",
+            "play",
+            "pause",
+            "artist of current track",
+            "album of current track",
+            "duration of current track",
+            "set repeating enabled to true",
+            "set repeating enabled to false",
+            "shuffling enabled",
+            "shuffling disabled"
+          ]
+        }
+      }
+    }
+  }
+}
+
 
 export {
   getCurrentWeatherToolDefinition,
@@ -179,5 +208,6 @@ export {
   openAppToolDefinition,
   sendEmailToolDefinition,
   setTimerToolDefinition,
-  mathOperationsToolDefinition
+  mathOperationsToolDefinition,
+  localSpotifyControlsToolDefinition
 }

@@ -13,6 +13,7 @@ import { openApp } from './tools/local/openApp.js';
 import { sendEmail } from './tools/other/sendEmail.js';
 import { setTimer } from './tools/local/setTimer.js';
 import { mathOperations } from './tools/local/mathOperations.js';
+import { localSpotifyControls } from './tools/local/localSpotifyControls.js';
 
 //definitions
 import {
@@ -29,7 +30,8 @@ import {
   openAppToolDefinition,
   sendEmailToolDefinition,
   setTimerToolDefinition,
-  mathOperationsToolDefinition
+  mathOperationsToolDefinition,
+  localSpotifyControlsToolDefinition
 } from "./definitions/definitions.js";
 
 const app = express();
@@ -52,7 +54,8 @@ const availableTools = {
   'openApp': openApp,
   'sendEmail': sendEmail,
   'setTimer': setTimer,
-  'mathOperations': mathOperations
+  'mathOperations': mathOperations,
+  'localSpotifyControls': localSpotifyControls
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -63,10 +66,16 @@ app.post("/process-audio", async (req, res) => {
   const messages = [
     {
       role: "system",
-      content: `Jesteś pomocnym asystentem. Odpowiadaj po polsku, krótko i naturalnie.
-
+      content: `Jesteś inteligentnym asystentem. Twoim celem jest wykonanie zadań użytkownika.
+      
+ZASADY:
+1. Odpowiadaj krótko i konkretnie.
+2. Jeśli pytanie dotyczy muzyki (np. "co teraz leci", "jaka to piosenka", "tytuł utworu"), UŻYJ narzędzia localSpotifyControls z akcją "name of current track".
+3. Nie tłumacz się, po prostu wykonaj zadanie i podaj wynik.
+4.POD ŻADNYM POZOREM NIE DODAWAJ FAKTÓW Z WŁASNEJ WIEDZY. Opieraj się TYLKO na wyniku z narzędzia
+5.Twoim jedynym zadaniem jest sformatowanie wyniku narzędzia w zdanie. NIE dodawaj NIC innego ani NIE zmieniaj języka wyniku z narzędzia.
 ZAWSZE używaj dostępnych narzędzi, gdy pytanie dotyczy:
-- pogody, cen, kalendarza, pokemonów, YouTube, aplikacji, emaili, timerów, metali szlachetnych
+- pogody, cen, kalendarza, pokemonów, YouTube, aplikacji, emaili, timerów, metali szlachetnych, zapytań dotyczących muzyki lub aktualnie lecących piosenek
 
 Jeśli narzędzie zwróci wynik, przekaż go użytkownikowi w prostych słowach.
 Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
@@ -92,9 +101,10 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       openAppToolDefinition,
       sendEmailToolDefinition,
       setTimerToolDefinition,
-      mathOperationsToolDefinition
+      mathOperationsToolDefinition,
+      localSpotifyControlsToolDefinition
     ],
-    options: { temperature: 0.4, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
+    options: { temperature: 0, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
 
   if (response.message.tool_calls?.length) {
@@ -124,7 +134,6 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
     const finalResponse = await ollama.chat({
       model: "llama3.2:3b", //here the analyzing takes a bit too long imo
       messages: messagesWithToolResult,
-      stream: false // todo: get to know what that does
     });
 
     const time = (Date.now() - start) / 1000;
