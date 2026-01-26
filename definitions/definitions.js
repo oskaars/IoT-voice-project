@@ -167,7 +167,7 @@ const localSpotifyControlsToolDefinition = {
   type: "function",
   function: {
     name: "localSpotifyControls",
-    description: "Kontroluje Spotify. Kluczowe akcje: 'name of current track' (zwraca TYTUŁ i ARTYSTĘ - używaj tego do pytań 'co teraz leci'), 'play', 'pause', 'next track', 'previous track'.",
+    description: "Kontroluje Spotify. Kluczowe akcje:  'play', 'pause', 'next track', 'previous track'.",
     parameters: {
       properties: {
         action: {
@@ -192,6 +192,15 @@ const localSpotifyControlsToolDefinition = {
   }
 }
 
+const localSpotifyGetSongInfoToolDefiniton = {
+  type: "function",
+  function: {
+    name: "localSpotifyGetSongInfo",
+    description: "Wyświetla informacje takie jak nazwę artysty oraz nazwę, obecnie granej piosenki na Spotify. (zwraca TYTUŁ i ARTYSTĘ - używaj tego do pytań 'co teraz leci')",
+    parameters: { type: "object", properties: {} }
+  }
+}
+
 
 export {
   getCurrentWeatherToolDefinition,
@@ -209,5 +218,6 @@ export {
   sendEmailToolDefinition,
   setTimerToolDefinition,
   mathOperationsToolDefinition,
-  localSpotifyControlsToolDefinition
+  localSpotifyControlsToolDefinition,
+  localSpotifyGetSongInfoToolDefiniton
 }
