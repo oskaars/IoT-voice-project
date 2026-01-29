@@ -15,6 +15,7 @@ import { setTimer } from './tools/local/setTimer.js';
 import { mathOperations } from './tools/local/mathOperations.js';
 import { localSpotifyControls } from './tools/local/spotify/localSpotifyControls.js';
 import { localSpotifyGetSongInfo } from './tools/local/spotify/localSpotifyGetSongInfo.js';
+import { catFacts } from './tools/other/catFacts.js';
 
 //definitions
 import {
@@ -33,7 +34,8 @@ import {
   setTimerToolDefinition,
   mathOperationsToolDefinition,
   localSpotifyControlsToolDefinition,
-  localSpotifyGetSongInfoToolDefiniton
+  localSpotifyGetSongInfoToolDefiniton,
+  catFactsToolDefinitions
 } from "./definitions/definitions.js";
 
 const app = express();
@@ -58,7 +60,8 @@ const availableTools = {
   'setTimer': setTimer,
   'mathOperations': mathOperations,
   'localSpotifyControls': localSpotifyControls,
-  'localSpotifyGetSongInfo': localSpotifyGetSongInfo
+  'localSpotifyGetSongInfo': localSpotifyGetSongInfo,
+  'catFacts': catFacts
 };
 
 app.post("/process-audio", async (req, res) => {
@@ -77,7 +80,7 @@ ZASADY:
 3.POD ŻADNYM POZOREM NIE DODAWAJ FAKTÓW Z WŁASNEJ WIEDZY. Opieraj się TYLKO na wyniku z narzędzia
 4.Twoim jedynym zadaniem jest sformatowanie wyniku narzędzia w zdanie. Tłumacz wynik narzędzia na naturalny język polski.
 ZAWSZE używaj dostępnych narzędzi, gdy pytanie dotyczy:
-- pogody, cen, kalendarza, pokemonów, YouTube, aplikacji, emaili, timerów, metali szlachetnych, zapytań dotyczących muzyki lub aktualnie lecących piosenek
+- pogody, cen, kalendarza, pokemonów, YouTube, aplikacji, emaili, timerów, metali szlachetnych, faktów dotyczących kotów, zapytań dotyczących muzyki lub aktualnie lecących piosenek
 5. gdy pytanie dotyczy KONTROLOWANIA muzyki np. "puść muzykę", "zatrzymaj muzykę", "shuffluj", "zapętl" -> użyj narzędzia localSpotifyControl
 6. gdy pytanie dotyczy INFORMACJI o aktualnie lecącej muzyce, uzyj narzędzia localSpotifyGetSOngInfo
 7. gdy pytanie dotyczy "tej" piosenki lub kiedy użytkownik nie poda dokładnie o jaki utwór chodzi, weź aktualnie grającą piosenkę
@@ -107,7 +110,8 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       setTimerToolDefinition,
       mathOperationsToolDefinition,
       localSpotifyControlsToolDefinition,
-      localSpotifyGetSongInfoToolDefiniton
+      localSpotifyGetSongInfoToolDefiniton,
+      catFactsToolDefinitions
     ],
     options: { temperature: 0, top_p: 0.9 } //can genaralilly be low bcs this call is just for tool usage detection, tool usage choice is way to long for now
   });
@@ -172,13 +176,21 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
       const song = toolOutput
       const text = `Teraz gra:${song.song_artist} - ${song.song_name}. 
       Z albumu: ${song.song_album}  `
-      return res.json({ text, time});
+      return res.json({ text, time });
 
     }
     if (toolName === 'getSilverCoinPrice') {
       const text = `Cena skupu srebrnego Krugerranda (1oz) to: ${toolOutput.buyback_price}.`;
       console.log("Template used for:", toolName);
       return res.json({ text, time, USDtoPLN: exchangeRate });
+    }
+
+    if (toolName === 'catFacts') {
+      let text
+      for (let key in toolOutput) {
+        text += toolOutput[key]
+      }
+      return res.json({text: text, time})
     }
 
     const cleanedText = finalResponse.message.content

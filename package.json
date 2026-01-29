@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "electron": "electron ."
+    "electron": "electron .",
+    "translate:start": "docker compose up -d",
+    "translate:stop": "docker compose down"
   },
   "author": "",
   "license": "ISC",

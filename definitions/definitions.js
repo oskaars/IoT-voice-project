@@ -201,6 +201,20 @@ const localSpotifyGetSongInfoToolDefiniton = {
   }
 }
 
+const catFactsToolDefinitions = {
+  type: "function",
+  function: {
+    name: "catFacts",
+    description: "Zwraca ciekawostki na temat kotów. Przyjmuje parametr count, który wpływa na liczbę ciekawostek",
+    parameters: {
+      type: "object",
+      properties: {
+        count: {type: "integer"}
+      }
+    }
+  }
+}
+
 
 export {
   getCurrentWeatherToolDefinition,
@@ -219,5 +233,6 @@ export {
   setTimerToolDefinition,
   mathOperationsToolDefinition,
   localSpotifyControlsToolDefinition,
-  localSpotifyGetSongInfoToolDefiniton
+  localSpotifyGetSongInfoToolDefiniton,
+  catFactsToolDefinitions
 }
