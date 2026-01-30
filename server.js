@@ -186,10 +186,11 @@ Dzisiaj jest: ${new Date().toLocaleString('pl-PL')}
     }
 
     if (toolName === 'catFacts') {
-      let text
-      for (let key in toolOutput) {
-        text += toolOutput[key]
-      }
+      let text = toolOutput.fakt0
+      // for (let key in toolOutput) {
+      //   text += toolOutput[key]
+      // }
+      console.log({text: text, time})
       return res.json({text: text, time})
     }
 

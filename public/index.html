@@ -185,6 +185,10 @@
         button.disabled = true
         button.innerText = "Type something c:"
 
+        input.addEventListener("keydown", (e)=>{
+            if(e.key === 'Enter') sendMessage()
+        })
+
         input.addEventListener('input', () => {
             if (input.value.trim().length < 1) {
                 button.disabled = true
